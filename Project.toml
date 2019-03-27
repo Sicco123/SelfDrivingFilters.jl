@@ -1,4 +1,4 @@
-name = "SelfDrivingScore"
+name = "SelfDrivingFilters"
 uuid = "c80fa880-503c-11e9-2e52-1fa40b486039"
 authors = ["Initial <marcin.zamojski@gmail.com>"]
 version = "0.1.0"
