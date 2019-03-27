@@ -1,9 +1,9 @@
-function static_criterion(params::Array, model::SelfDrivingScore.ScoreModel)
+function static_criterion(params::Array, model::ScoreModel)
     o=[model.criterion(params, model.data.data[i,:]) for i=1:model.data.T]
     o=model.criterion_reduce(o)
     o
 end
-function static_criterion(model::SelfDrivingScore.ScoreModel)
+function static_criterion(model::ScoreModel)
     return criterion(params::Array)=static_criterion(params, model)
 end
 

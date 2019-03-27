@@ -128,7 +128,7 @@ function estimate!(
         initial_parameters=res.minimizer
     end
 
-    sdm_criterion(parameters; kwargs...) = SelfDrivingScore.sdm_criterion(model)(parameters; kwargs...)
+    sdm_criterion(parameters; kwargs...) = sdm_criterion(model)(parameters; kwargs...)
     model.sdm_criterion=sdm_criterion
 
     ABλ=[
@@ -205,7 +205,7 @@ function estimate_plots!(
         reference_labels=[reference_labels...,:Static]
     end
 
-    sdm_criterion(parameters; kwargs...) = SelfDrivingScore.sdm_criterion(model)(parameters; kwargs...)
+    sdm_criterion(parameters; kwargs...) = sdm_criterion(model)(parameters; kwargs...)
     model.sdm_criterion=sdm_criterion
 
     ABλ=[
