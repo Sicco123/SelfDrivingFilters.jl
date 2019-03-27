@@ -8,6 +8,7 @@ module SelfDrivingFilters
     export get_ωAB
     export define_model
     export initialize_parameters!
+    export initialize_recursion!
     export add_data!
     export estimate!
     export estimate_plots!
@@ -34,7 +35,6 @@ module SelfDrivingFilters
             parameter_transforms=(),
             leverage_ix=Dict{Int,Int}(),
             data=[],
-            reference_ft=[],
             init_options=InitOptions(:reverse_run, 1.0),
             scaling_options=ScalingOptions(:hessian, 0.99)
         )
@@ -97,9 +97,6 @@ module SelfDrivingFilters
                 init_options,
                 scaling_options
             )
-        end
-        if length(data)!=0
-            add_data!(model, data; reference_ft=reference_ft)
         end
         return model
     end
