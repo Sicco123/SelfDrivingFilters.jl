@@ -128,8 +128,8 @@ function estimate!(
         initial_parameters=res.minimizer
     end
 
-    sdm_criterion(parameters; kwargs...) = sdm_criterion(model)(parameters; kwargs...)
-    model.sdm_criterion=sdm_criterion
+    sdm_criterion_function(parameters; kwargs...) = sdm_criterion(model)(parameters; kwargs...)
+    model.sdm_criterion=sdm_criterion_function
 
     ABλ=[
         [A B λ]
@@ -160,9 +160,9 @@ function estimate!(
     model.scaling_options=ScalingOptions(model.scaling_options.type, λ)
     initialize_model!(model, model.results.initial, initial_parameters[:]; A=A, B=B)
 
-    sdm_criterion(model.results.initial.parameters)
+    sdm_criterion_function(model.results.initial.parameters)
     res=estimate_model(
-        model.sdm_criterion,
+        model.sdm_criterion_function,
         model.results.initial.parameters[:],
         :SelfDriving;
         optimizers=optimizers,
@@ -205,8 +205,8 @@ function estimate_plots!(
         reference_labels=[reference_labels...,:Static]
     end
 
-    sdm_criterion(parameters; kwargs...) = sdm_criterion(model)(parameters; kwargs...)
-    model.sdm_criterion=sdm_criterion
+    sdm_criterion_function(parameters; kwargs...) = sdm_criterion(model)(parameters; kwargs...)
+    model.sdm_criterion=sdm_criterion_function
 
     ABλ=[
         [A B λ]
@@ -221,7 +221,7 @@ function estimate_plots!(
             begin
                 model.scaling_options=ScalingOptions(model.scaling_options.type, λ)
                 initialize_model!(model, model.results.initial, initial_parameters[:]; A=A, B=B)
-                sdm_criterion(model.results.initial.parameters[:])
+                sdm_criterion_function(model.results.initial.parameters[:])
             end
             for (A, B, λ) in ABλ
         ]
@@ -233,10 +233,10 @@ function estimate_plots!(
         # println(ABλ[1])
     end
 
-    (A, B, λ) = ABλ[1]
-    model.scaling_options=ScalingOptions(model.scaling_options.type, λ)
-    initialize_model!(model, model.results.initial, initial_parameters[:]; A=0.0, B=0.0)
-    if plots==true plot_paths_opt(model.results.initial.parameters[:], "Initial", model.sdm_criterion; model_name=:SelfDriving,reference_paths=reference_paths,reference_labels=reference_labels) end
+    # (A, B, λ) = ABλ[1]
+    # model.scaling_options=ScalingOptions(model.scaling_options.type, λ)
+    # initialize_model!(model, model.results.initial, initial_parameters[:]; A=0.0, B=0.0)
+    # if plots==true plot_paths_opt(model.results.initial.parameters[:], "Initial", model.sdm_criterion; model_name=:SelfDriving,reference_paths=reference_paths,reference_labels=reference_labels) end
 
     (A, B, λ) = ABλ[1]
     model.scaling_options=ScalingOptions(model.scaling_options.type, λ)
