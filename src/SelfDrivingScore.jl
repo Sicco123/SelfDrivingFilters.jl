@@ -1,4 +1,4 @@
-module SelfDrivingScore
+module SelfDrivingFilters
     import ForwardDiff
     import DiffResults
     using LinearAlgebra
