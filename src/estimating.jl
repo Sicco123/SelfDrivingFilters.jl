@@ -162,7 +162,7 @@ function estimate!(
 
     sdm_criterion_function(model.results.initial.parameters)
     res=estimate_model(
-        model.sdm_criterion_function,
+        model.sdm_criterion,
         model.results.initial.parameters[:],
         :SelfDriving;
         optimizers=optimizers,
