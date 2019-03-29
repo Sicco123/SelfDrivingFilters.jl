@@ -3,8 +3,10 @@ Self-driving score filters allow you to estimate simple and complex time-varying
 
 # Attribution
 If you find this package helpful, please include the following citation in your publicaition
-@article{Zamojski2019,
+```
+@techreport{Zamojski2019,
     title = {Self-driving score filters},
    author = {Zamojski, M.},
      year = {2019}
 }
+```
