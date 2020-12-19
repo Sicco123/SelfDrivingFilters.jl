@@ -1,61 +1,59 @@
 module SelfDrivingFilters
+    import Optim
+    import LineSearches
     import ForwardDiff
     import DiffResults
+    import Base.Iterators
     using LinearAlgebra
     using SparseArrays
     using Statistics: mean
+    using VariableTransforms
 
     export get_ωAB
     export define_model
     export initialize_parameters!
     export initialize_recursion!
     export add_data!
-    export estimate!
-    export estimate_plots!
+    export fit!
+    # export estimate_plots!
 
-    abstract type ScoreModel end
+    abstract type ScoreFilter end
 
-    include("variable_transforms.jl")
+    # include("variable_transforms.jl")
+    include("score_filter_results.jl")
     include("add_data.jl")
-    include("score_results.jl")
+    include("score_filter_storage.jl")
     include("scaling.jl")
     include("init_functions.jl")
-    include("sparse_score_models.jl")
-    include("dense_score_models.jl")
-    include("leveraged_score_models.jl")
-    include("sdm_recursion.jl")
-    include("plotting.jl")
-    include("estimating.jl")
+    include("sparse_score_filters.jl")
+    include("simple_score_filters.jl")
+    include("dense_score_filters.jl")
+    include("leveraged_score_filters.jl")
+    include("recursion.jl")
+    # include("plotting.jl")
+    include("fit.jl")
 
     function define_model(
             tv_ix::Array{Bool},
             criterion::Function;
-            type=:sparse,
+            filter_type=:sparse,
             criterion_reduce::Function = mean,
             parameter_transforms=(),
             leverage_ix=Dict{Int,Int}(),
             data=[],
-            init_options=InitOptions(:reverse_run, 1.0),
-            scaling_options=ScalingOptions(:hessian, 0.99)
+            init_options=(:reverse_run, 1.0),
+            scaling_options=(:hessian, 0.99),
+            data_type=Float64
         )
-        no_params, no_tv, = length(tv_ix), sum(tv_ix);
-        no_static = no_params-no_tv;
-        if type==:sparse
-            model=SparseScoreModel(
-                tv_ix,
-                no_params,
-                no_tv,
-                no_static,
-                ScoreResultsContainer(ScoreResults(:static,[],NaN,[],[],[]),ScoreResults(:initial,[],NaN,[],[],[]),ScoreResults(:best,[],Inf,[],[],[]),ScoreResults(:final,[],NaN,[],[],[])),
-                criterion,
-                x->x,
-                criterion_reduce,
-                parameter_transforms,
-                CurrentSample([],0,0),
-                init_options,
-                scaling_options
-            )
-        elseif type==:leveraged
+        no_params=length(tv_ix)
+        if filter_type==:sparse
+            model=SparseScoreFilter(data_type,typeof(criterion),typeof(criterion_reduce))
+        elseif filter_type==:simple
+            model=SimpleScoreFilter(data_type,typeof(criterion),typeof(criterion_reduce))
+        elseif filter_type==:dense
+            model=DenseScoreFilter(data_type,typeof(criterion),typeof(criterion_reduce))
+        elseif filter_type==:leveraged
+            model=LeveragedScoreFilter(data_type,typeof(criterion),typeof(criterion_reduce))
             AB_ix=fill(false,no_params,no_params)
             for i=1:no_params
                 if tv_ix[i]==true
@@ -67,36 +65,25 @@ module SelfDrivingFilters
                     AB_ix[j,i]=true
                 end
             end
-            model=LeveragedScoreModel(
-                tv_ix,
-                AB_ix,
-                no_params,
-                no_tv,
-                no_static,
-                ScoreResultsContainer(ScoreResults(:static,[],NaN,[],[],[]),ScoreResults(:initial,[],NaN,[],[],[]),ScoreResults(:best,[],Inf,[],[],[]),ScoreResults(:final,[],NaN,[],[],[])),
-                criterion,
-                x->x,
-                criterion_reduce,
-                parameter_transforms,
-                CurrentSample([],0,0),
-                init_options,
-                scaling_options
-            )
+            model.leverage_ix=AB_ix
+        end
+
+        model.criterion=criterion
+        model.criterion_reduce=criterion_reduce
+        model.tv_ix=tv_ix
+        model.no_params = no_params
+        model.no_tv = sum(tv_ix)
+        model.no_static = model.no_params-model.no_tv
+        model.parameter_transforms=parameter_transforms
+        if typeof(init_options)!=Symbol
+            model.init_options=InitOptions(init_options...)
         else
-            model = DenseScoreModel(
-                tv_ix,
-                no_params,
-                no_tv,
-                no_static,
-                ScoreResultsContainer(ScoreResults(:static,[],NaN,[],[],[]),ScoreResults(:initial,[],NaN,[],[],[]),ScoreResults(:best,[],Inf,[],[],[]),ScoreResults(:final,[],NaN,[],[],[])),
-                criterion,
-                x->x,
-                criterion_reduce,
-                parameter_transforms,
-                CurrentSample([],0,0),
-                init_options,
-                scaling_options
-            )
+            model.init_options=InitOptions(init_options)
+        end
+        if typeof(scaling_options)!=Symbol
+            model.scaling_options=ScalingOptions(scaling_options...)
+        else
+            model.scaling_options=ScalingOptions(scaling_options)
         end
         return model
     end
