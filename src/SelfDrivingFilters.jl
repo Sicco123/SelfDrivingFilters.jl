@@ -15,6 +15,7 @@ module SelfDrivingFilters
     export initialize_recursion!
     export add_data!
     export fit!
+    export score_driven_criterion!
     # export estimate_plots!
 
     abstract type ScoreFilter end
