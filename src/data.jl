@@ -22,7 +22,11 @@ function update_data!(model::ScoreFilter, data::Array{T,2}; time_axis=1) where {
     if time_axis==1
         data=Matrix(data')
     end
-    model.data.data.=data
+    model.data = CurrentSample(
+        data,
+        size(data,2),
+        size(data,1)
+    )
     model.data
 end
 
