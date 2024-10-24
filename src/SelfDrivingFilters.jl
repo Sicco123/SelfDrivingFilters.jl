@@ -13,7 +13,7 @@ module SelfDrivingFilters
     export define_model
     export initialize_parameters!
     export initialize_recursion!
-    export add_data!
+    export add_data!, update_data!
     export fit!
     export score_driven_criterion!
     # export estimate_plots!
@@ -22,7 +22,7 @@ module SelfDrivingFilters
 
     # include("variable_transforms.jl")
     include("score_filter_results.jl")
-    include("add_data.jl")
+    include("data.jl")
     include("score_filter_storage.jl")
     include("scaling.jl")
     include("init_functions.jl")

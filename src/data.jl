@@ -17,3 +17,13 @@ function add_data!(model::ScoreFilter, data::Array{T,2}; time_axis=1) where {T<:
     model.data
 end
 add_data!(model::ScoreFilter, data::Array{T,1}) where {T<:Real} = add_data!(model, reshape(data,1,:); time_axis=2)
+
+function update_data!(model::ScoreFilter, data::Array{T,2}; time_axis=1) where {T<:Real}
+    if time_axis==1
+        data=Matrix(data')
+    end
+    model.data.data.=data
+    model.data
+end
+
+update_data!(model::ScoreFilter, data::Array{T,1}) where {T<:Real} = update_data!(model, reshape(data,1,:); time_axis=2)
